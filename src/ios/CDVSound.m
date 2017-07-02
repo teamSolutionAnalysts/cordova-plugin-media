@@ -20,6 +20,8 @@
 #import <AVFoundation/AVFoundation.h>
 #include <math.h>
 
+
+
 #define DOCUMENTS_SCHEME_PREFIX @"documents://"
 #define HTTP_SCHEME_PREFIX @"http://"
 #define HTTPS_SCHEME_PREFIX @"https://"
@@ -225,6 +227,7 @@
 - (void)create:(CDVInvokedUrlCommand*)command
 {
     NSString* mediaId = [command argumentAtIndex:0];
+    NSLog(@"%@", mediaId);
     NSString* resourcePath = [command argumentAtIndex:1];
 
     CDVAudioFile* audioFile = [self audioFileForResource:resourcePath withId:mediaId doValidation:YES forRecording:NO suppressValidationErrors:YES];
@@ -237,19 +240,22 @@
         NSURL* resourceUrl = audioFile.resourceURL;
 
         if (![resourceUrl isFileURL] && ![resourcePath hasPrefix:CDVFILE_PREFIX]) {
-            // First create an AVPlayerItem
-            AVPlayerItem* playerItem = [AVPlayerItem playerItemWithURL:resourceUrl];
-
-            // Subscribe to the AVPlayerItem's DidPlayToEndTime notification.
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
-
-            // Subscribe to the AVPlayerItem's PlaybackStalledNotification notification.
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemStalledPlaying:) name:AVPlayerItemPlaybackStalledNotification object:playerItem];
+//            // First create an AVPlayerItem
+//            AVPlayerItem* playerItem = [AVPlayerItem playerItemWithURL:resourceUrl];
+//
+//            // Subscribe to the AVPlayerItem's DidPlayToEndTime notification.
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
+//
+//            // Subscribe to the AVPlayerItem's PlaybackStalledNotification notification.
+//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemStalledPlaying:) name:AVPlayerItemPlaybackStalledNotification object:playerItem];
 
             // Pass the AVPlayerItem to a new player
-            avPlayer = [[AVPlayer alloc] initWithPlayerItem:playerItem];
-
-            //avPlayer = [[AVPlayer alloc] initWithURL:resourceUrl];
+            if(!avPlayer) {
+                avPlayer = [[CDVAudioPlayer alloc] init];
+                [avPlayer clearQueue];
+            }
+            
+            avPlayer.dataSource = [CDVAudioPlayer dataSourceFromURL:resourceUrl];
         }
 
         self.currMediaId = mediaId;
@@ -302,14 +308,15 @@
         CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
         if (audioFile != nil) {
             audioFile.rate = rate;
-            if (audioFile.player) {
-                audioFile.player.enableRate = YES;
-                audioFile.player.rate = [rate floatValue];
-            }
-            if (avPlayer.currentItem && avPlayer.currentItem.asset){
-                float customRate = [rate floatValue];
-                [avPlayer setRate:customRate];
-            }
+            // TODO: Fix for rate
+//            if (audioFile.player) {
+//                audioFile.player.enableRate = YES;
+//                audioFile.player.rate = [rate floatValue];
+//            }
+//            if (avPlayer.currentItem && avPlayer.currentItem.asset){
+//                float customRate = [rate floatValue];
+//                [avPlayer setRate:customRate];
+//            }
 
             [[self soundCache] setObject:audioFile forKey:mediaId];
         }
@@ -360,51 +367,58 @@
             }
             if (!bError) {
                 NSLog(@"Playing audio sample '%@'", audioFile.resourcePath);
-                double duration = 0;
-                if (avPlayer.currentItem && avPlayer.currentItem.asset) {
-                    CMTime time = avPlayer.currentItem.asset.duration;
-                    duration = CMTimeGetSeconds(time);
-                    if (isnan(duration)) {
-                        NSLog(@"Duration is infifnite, setting it to -1");
-                        duration = -1;
-                    }
-
-                    if (audioFile.rate != nil){
-                        float customRate = [audioFile.rate floatValue];
-                        NSLog(@"Playing stream with AVPlayer & custom rate");
-                        [avPlayer setRate:customRate];
-                    } else {
-                        NSLog(@"Playing stream with AVPlayer & default rate");
-                        [avPlayer play];
-                    }
-
+                
+                if (avPlayer.state == STKAudioPlayerStatePaused) {
+                    [avPlayer resume];
                 } else {
-
-                    NSNumber* loopOption = [options objectForKey:@"numberOfLoops"];
-                    NSInteger numberOfLoops = 0;
-                    if (loopOption != nil) {
-                        numberOfLoops = [loopOption intValue] - 1;
-                    }
-                    audioFile.player.numberOfLoops = numberOfLoops;
-                    if (audioFile.player.isPlaying) {
-                        [audioFile.player stop];
-                        audioFile.player.currentTime = 0;
-                    }
-                    if (audioFile.volume != nil) {
-                        audioFile.player.volume = [audioFile.volume floatValue];
-                    }
-
-                    audioFile.player.enableRate = YES;
-                    if (audioFile.rate != nil) {
-                        audioFile.player.rate = [audioFile.rate floatValue];
-                    }
-
-                    [audioFile.player play];
-                    duration = round(audioFile.player.duration * 1000) / 1000;
+                    [avPlayer playDataSource:avPlayer.dataSource];
                 }
+                
+//                if (avPlayer.currentItem && avPlayer.currentItem.asset) {
+//                    CMTime time = avPlayer.currentItem.asset.duration;
+//                    duration = CMTimeGetSeconds(time);
+//                    if (isnan(duration)) {
+//                        NSLog(@"Duration is infifnite, setting it to -1");
+//                        duration = -1;
+//                    }
+//
+//                    if (audioFile.rate != nil){
+//                        float customRate = [audioFile.rate floatValue];
+//                        NSLog(@"Playing stream with AVPlayer & custom rate");
+//                        [avPlayer setRate:customRate];
+//                    } else {
+//                        NSLog(@"Playing stream with AVPlayer & default rate");
+//                        [avPlayer play];
+//                    }
+//                    [audioFile.player playURL: audioFile.resourceURL];
+//                    duration = round(audioFile.player.duration * 1000) / 1000;
+//                } else {
 
-                [self onStatus:MEDIA_DURATION mediaId:mediaId param:@(duration)];
-                [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_RUNNING)];
+                    // TODO: Fixme
+//                    NSNumber* loopOption = [options objectForKey:@"numberOfLoops"];
+//                    NSInteger numberOfLoops = 0;
+//                    if (loopOption != nil) {
+//                        numberOfLoops = [loopOption intValue] - 1;
+//                    }
+//                    audioFile.player.numberOfLoops = numberOfLoops;
+//                    if (audioFile.player.isPlaying) {
+//                        [audioFile.player stop];
+//                        audioFile.player.currentTime = 0;
+//                    }
+//                    if (audioFile.volume != nil) {
+//                        audioFile.player.volume = [audioFile.volume floatValue];
+//                    }
+//
+//                    audioFile.player.enableRate = YES;
+//                    if (audioFile.rate != nil) {
+//                        audioFile.player.rate = [audioFile.rate floatValue];
+//                    }
+
+//                    [audioFile.player playURL: audioFile.resourceURL];
+//                    duration = round(audioFile.player.duration * 1000) / 1000;
+//                }
+
+                
             }
         }
         if (bError) {
@@ -438,9 +452,10 @@
 
     // create the player
     NSURL* resourceURL = audioFile.resourceURL;
+//    audioFile.player = [[CDVAudioPlayer alloc] init];
 
     if ([resourceURL isFileURL]) {
-        audioFile.player = [[CDVAudioPlayer alloc] initWithContentsOfURL:resourceURL error:&playerError];
+        
     } else {
         /*
         NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:resourceURL];
@@ -467,51 +482,22 @@
     }
 
     if (playerError != nil) {
-        NSLog(@"Failed to initialize AVAudioPlayer: %@\n", [playerError localizedDescription]);
-        audioFile.player = nil;
-        if (self.avSession) {
-            [self.avSession setActive:NO error:nil];
-        }
-        bError = YES;
+//        NSLog(@"Failed to initialize AVAudioPlayer: %@\n", [playerError localizedDescription]);
+//        audioFile.player = nil;
+//        if (self.avSession) {
+//            [self.avSession setActive:NO error:nil];
+//        }
+//        bError = YES;
     } else {
-        audioFile.player.mediaId = mediaId;
-        audioFile.player.delegate = self;
-        if (avPlayer == nil)
-            bError = ![audioFile.player prepareToPlay];
+        avPlayer.mediaId = mediaId;
+        avPlayer.delegate = self;
     }
     return bError;
 }
 
 - (void)stopPlayingAudio:(CDVInvokedUrlCommand*)command
 {
-    NSString* mediaId = [command argumentAtIndex:0];
-    CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
-
-    if ((audioFile != nil) && (audioFile.player != nil)) {
-        NSLog(@"Stopped playing audio sample '%@'", audioFile.resourcePath);
-        [audioFile.player stop];
-        audioFile.player.currentTime = 0;
-        [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_STOPPED)];
-    }
-    // seek to start and pause
-    if (avPlayer.currentItem && avPlayer.currentItem.asset) {
-        BOOL isReadyToSeek = (avPlayer.status == AVPlayerStatusReadyToPlay) && (avPlayer.currentItem.status == AVPlayerItemStatusReadyToPlay);
-        if (isReadyToSeek) {
-            [avPlayer seekToTime: kCMTimeZero
-                 toleranceBefore: kCMTimeZero
-                  toleranceAfter: kCMTimeZero
-               completionHandler: ^(BOOL finished){
-                   if (finished) [avPlayer pause];
-               }];
-            [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_STOPPED)];
-        } else {
-            // cannot seek, wrong state
-            CDVMediaError errcode = MEDIA_ERR_NONE_ACTIVE;
-            NSString* errMsg = @"Cannot service stop request until the avPlayer is in 'AVPlayerStatusReadyToPlay' state.";
-            [self onStatus:MEDIA_ERROR mediaId:mediaId param:
-              [self createMediaErrorWithCode:errcode message:errMsg]];
-        }
-    }
+    [avPlayer stop];
 }
 
 - (void)pausePlayingAudio:(CDVInvokedUrlCommand*)command
@@ -526,8 +512,6 @@
         } else if (avPlayer != nil) {
             [avPlayer pause];
         }
-
-        [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_PAUSED)];
     }
 }
 
@@ -535,47 +519,32 @@
 {
     // args:
     // 0 = Media id
-    // 1 = seek to location in milliseconds
+    // 1 = seek to location in seconds
 
     NSString* mediaId = [command argumentAtIndex:0];
 
     CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
-    double position = [[command argumentAtIndex:1] doubleValue];
-    double posInSeconds = position / 1000;
-
+    double posInSeconds = [[command argumentAtIndex:1] doubleValue];
+    
+    NSLog(@"posInSeconds %f", posInSeconds);
+    
     if ((audioFile != nil) && (audioFile.player != nil)) {
 
         if (posInSeconds >= audioFile.player.duration) {
             // The seek is past the end of file.  Stop media and reset to beginning instead of seeking past the end.
-            [audioFile.player stop];
-            audioFile.player.currentTime = 0;
-            [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_STOPPED)];
+//            [audioFile.player stop];
+            // TODO: Fixme
+//            audioFile.player.currentTime = 0;
+//            [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_STOPPED)];
         } else {
-            audioFile.player.currentTime = posInSeconds;
-            [self onStatus:MEDIA_POSITION mediaId:mediaId param:@(posInSeconds)];
+            // TODO: Fixme
+//            audioFile.player.currentTime = posInSeconds;
+//            [self onStatus:MEDIA_POSITION mediaId:mediaId param:@(posInSeconds)];
         }
-
     } else if (avPlayer != nil) {
-        int32_t timeScale = avPlayer.currentItem.asset.duration.timescale;
-        CMTime timeToSeek = CMTimeMakeWithSeconds(posInSeconds, timeScale);
-
-        BOOL isPlaying = (avPlayer.rate > 0 && !avPlayer.error);
-        BOOL isReadyToSeek = (avPlayer.status == AVPlayerStatusReadyToPlay) && (avPlayer.currentItem.status == AVPlayerItemStatusReadyToPlay);
-
-        // CB-10535:
-        // When dealing with remote files, we can get into a situation where we start playing before AVPlayer has had the time to buffer the file to be played.
-        // To avoid the app crashing in such a situation, we only seek if both the player and the player item are ready to play. If not ready, we send an error back to JS land.
+        BOOL isReadyToSeek = (avPlayer.state == STKAudioPlayerStateReady || avPlayer.state == STKAudioPlayerStatePlaying || avPlayer.state == STKAudioPlayerStatePaused);
         if(isReadyToSeek) {
-            [avPlayer seekToTime: timeToSeek
-                 toleranceBefore: kCMTimeZero
-                  toleranceAfter: kCMTimeZero
-               completionHandler: ^(BOOL finished) {
-                   if (isPlaying) [avPlayer play];
-               }];
-        } else {
-            NSString* errMsg = @"AVPlayerItem cannot service a seek request with a completion handler until its status is AVPlayerItemStatusReadyToPlay.";
-            [self onStatus:MEDIA_ERROR mediaId:mediaId param:
-              [self createAbortError:errMsg]];
+            [avPlayer seekToTime: posInSeconds];
         }
     }
 }
@@ -590,20 +559,21 @@
         CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
 
         if (audioFile != nil) {
-            if (audioFile.player && [audioFile.player isPlaying]) {
+            if (audioFile.player && audioFile.player.state == STKAudioPlayerStatePlaying) {
                 [audioFile.player stop];
             }
-            if (audioFile.recorder && [audioFile.recorder isRecording]) {
-                [audioFile.recorder stop];
-            }
-            if (avPlayer != nil) {
-                [avPlayer pause];
-                avPlayer = nil;
-            }
-            if (self.avSession) {
-                [self.avSession setActive:NO error:nil];
-                self.avSession = nil;
-            }
+            // TODO: Fixme
+//            if (audioFile.recorder && [audioFile.recorder isRecording]) {
+//                [audioFile.recorder stop];
+//            }
+//            if (avPlayer != nil) {
+//                [avPlayer pause];
+//                avPlayer = nil;
+//            }
+//            if (self.avSession) {
+//                [self.avSession setActive:NO error:nil];
+//                self.avSession = nil;
+//            }
             [[self soundCache] removeObjectForKey:mediaId];
             NSLog(@"Media with id %@ released", mediaId);
         }
@@ -619,12 +589,11 @@
     CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
     double position = -1;
 
-    if ((audioFile != nil) && (audioFile.player != nil) && [audioFile.player isPlaying]) {
-        position = round(audioFile.player.currentTime * 1000) / 1000;
+    if ((audioFile != nil) && (audioFile.player != nil) && audioFile.player.state == STKAudioPlayerStatePlaying) {
+        position = round(audioFile.player.progress * 1000) / 1000;
     }
     if (avPlayer) {
-       CMTime time = [avPlayer currentTime];
-       position = CMTimeGetSeconds(time);
+        position = round(avPlayer.progress * 1000) / 1000;
     }
 
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDouble:position];
@@ -789,7 +758,7 @@
         NSLog(@"Finished playing audio sample '%@'", audioFile.resourcePath);
     }
     if (flag) {
-        audioFile.player.currentTime = 0;
+//        audioFile.player.currentTime = 0;
         [self onStatus:MEDIA_STATE mediaId:mediaId param:@(MEDIA_STOPPED)];
     } else {
         [self onStatus:MEDIA_ERROR mediaId:mediaId param:
@@ -835,7 +804,7 @@
         if (audioFile != nil) {
             if (audioFile.player != nil) {
                 [audioFile.player stop];
-                audioFile.player.currentTime = 0;
+//                audioFile.player.currentTime = 0;
             }
             if (audioFile.recorder != nil) {
                 [audioFile.recorder stop];
@@ -935,6 +904,77 @@
               mediaId, (int)what, param];
         [self.commandDelegate evalJs:jsString];
     }
+}
+
+
+/// Raised when an item has started playing
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer didStartPlayingQueueItemId:(NSObject*)queueItemId{
+    NSLog(@"didStartPlayingQueueItemId");
+}
+
+/// Raised when an item has finished buffering (may or may not be the currently playing item)
+/// This event may be raised multiple times for the same item if seek is invoked on the player
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer didFinishBufferingSourceWithQueueItemId:(NSObject*)queueItemId{
+    NSLog(@"didFinishBufferingSourceWithQueueItemId");
+    
+}
+/// Raised when the state of the player has changed
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer stateChanged:(STKAudioPlayerState)state previousState:(STKAudioPlayerState)previousState{
+    NSLog(@"stateChanged %li ==== %li", (long)state, (long)previousState);
+    if(state == STKAudioPlayerStateReady){
+        NSLog(@"STKAudioPlayerStateReady");
+    }
+    
+    if(state == STKAudioPlayerStatePaused){
+        NSLog(@"STKAudioPlayerStatePaused");
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_PAUSED)];
+    }
+    
+    if(state == STKAudioPlayerStatePlaying){
+        NSLog(@"STKAudioPlayerStatePlaying");
+        [self onStatus:MEDIA_DURATION mediaId: self.currMediaId param:@(audioPlayer.duration)];
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_RUNNING)];
+    }
+    
+    if(state == STKAudioPlayerStateRunning){
+        NSLog(@"STKAudioPlayerStateRunning");
+    }
+    
+    if(state == STKAudioPlayerStateError){
+        NSLog(@"STKAudioPlayerStateError");
+    }
+    
+    if(state == STKAudioPlayerStateStopped){
+        NSLog(@"STKAudioPlayerStateStopped");
+//        audioPlayer
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_STOPPED)];
+    }
+    
+    if(state == STKAudioPlayerStateDisposed){
+        NSLog(@"STKAudioPlayerStateDisposed");
+    }
+    
+    if(state == STKAudioPlayerStateBuffering){
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_STARTING)];   
+    }
+}
+
+/// Raised when an item has finished playing
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer didFinishPlayingQueueItemId:(NSObject*)queueItemId withReason:(STKAudioPlayerStopReason)stopReason andProgress:(double)progress andDuration:(double)duration{
+    NSLog(@"didFinishPlayingQueueItemId withReason %li ==== %f  ====== %f", stopReason, progress, duration);
+}
+/// Raised when an unexpected and possibly unrecoverable error has occured (usually best to recreate the STKAudioPlauyer)
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer unexpectedError:(STKAudioPlayerErrorCode)errorCode{
+    NSLog(@"unexpectedError errorCode:  %li ", errorCode);
+}
+
+/// Optionally implemented to get logging information from the STKAudioPlayer (used internally for debugging)
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer logInfo:(NSString*)line{
+    NSLog(@"[STKAudioPlayer logInfo] :  %@ ", line);
+}
+/// Raised when items queued items are cleared (usually because of a call to play, setDataSource or stop)
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer didCancelQueuedItems:(NSArray*)queuedItems{
+    NSLog(@"[STKAudioPlayer didCancelQueuedItems] :  %@ ", queuedItems);
 }
 
 @end

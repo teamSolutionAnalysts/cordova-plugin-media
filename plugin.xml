@@ -107,10 +107,40 @@ id="cordova-plugin-media"
         </config-file>
         <header-file src="src/ios/CDVSound.h" />
         <source-file src="src/ios/CDVSound.m" />
-        <preference name="MICROPHONE_USAGE_DESCRIPTION" default=" " />
-        <config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
+        
+        <header-file src="src/ios/StreamingKit/NSMutableArray+STKAudioPlayer.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/NSMutableArray+STKAudioPlayer.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKAudioPlayer.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKAudioPlayer.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKAutoRecoveringHTTPDataSource.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKAutoRecoveringHTTPDataSource.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKCoreFoundationDataSource.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKCoreFoundationDataSource.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKDataSource.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKDataSource.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKDataSourceWrapper.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKDataSourceWrapper.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKHTTPDataSource.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKHTTPDataSource.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKLocalFileDataSource.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKLocalFileDataSource.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/STKQueueEntry.h" target-dir="StreamingKit"/>
+        <source-file src="src/ios/StreamingKit/STKQueueEntry.m" target-dir="StreamingKit"/>
+
+        <header-file src="src/ios/StreamingKit/StreamingKit-Prefix.pch" target-dir="StreamingKit"/>
+
+        <!--<preference name="MICROPHONE_USAGE_DESCRIPTION" default=" " />-->
+        <!--<config-file target="*-Info.plist" parent="NSMicrophoneUsageDescription">
             <string>$MICROPHONE_USAGE_DESCRIPTION</string>
-        </config-file>
+        </config-file>-->
     </platform>
 
     <!-- blackberry10 -->

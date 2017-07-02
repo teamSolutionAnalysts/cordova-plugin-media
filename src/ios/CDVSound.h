@@ -20,6 +20,8 @@
 #import <AVFoundation/AVFoundation.h>
 
 #import <Cordova/CDVPlugin.h>
+#import "STKAudioPlayer.h"
+#import "STKHTTPDataSource.h"
 
 enum CDVMediaError {
     MEDIA_ERR_NONE_ACTIVE = 0,
@@ -47,11 +49,14 @@ enum CDVMediaMsg {
 };
 typedef NSUInteger CDVMediaMsg;
 
-@interface CDVAudioPlayer : AVAudioPlayer
+@interface CDVAudioPlayer : STKAudioPlayer
 {
-    NSString* mediaId;
+    NSString *mediaId;
+    STKDataSource *dataSource;
+    
 }
 @property (nonatomic, copy) NSString* mediaId;
+@property (nonatomic, strong) STKDataSource* dataSource;
 @end
 
 @interface CDVAudioRecorder : AVAudioRecorder
@@ -81,12 +86,12 @@ typedef NSUInteger CDVMediaMsg;
 
 @end
 
-@interface CDVSound : CDVPlugin <AVAudioPlayerDelegate, AVAudioRecorderDelegate>
+@interface CDVSound : CDVPlugin <AVAudioPlayerDelegate, AVAudioRecorderDelegate, STKAudioPlayerDelegate>
 {
     NSMutableDictionary* soundCache;
     NSString* currMediaId;
     AVAudioSession* avSession;
-    AVPlayer* avPlayer;
+    CDVAudioPlayer* avPlayer;
     NSString* statusCallbackId;
 }
 @property (nonatomic, strong) NSMutableDictionary* soundCache;
