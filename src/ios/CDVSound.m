@@ -238,25 +238,14 @@
           [self createAbortError:errorMessage]];
     } else {
         NSURL* resourceUrl = audioFile.resourceURL;
-
-        if (![resourceUrl isFileURL] && ![resourcePath hasPrefix:CDVFILE_PREFIX]) {
-//            // First create an AVPlayerItem
-//            AVPlayerItem* playerItem = [AVPlayerItem playerItemWithURL:resourceUrl];
-//
-//            // Subscribe to the AVPlayerItem's DidPlayToEndTime notification.
-//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
-//
-//            // Subscribe to the AVPlayerItem's PlaybackStalledNotification notification.
-//            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemStalledPlaying:) name:AVPlayerItemPlaybackStalledNotification object:playerItem];
-
-            // Pass the AVPlayerItem to a new player
-            if(!avPlayer) {
-                avPlayer = [[CDVAudioPlayer alloc] init];
-                [avPlayer clearQueue];
-            }
-            
-            avPlayer.dataSource = [CDVAudioPlayer dataSourceFromURL:resourceUrl];
+        
+        // Pass the AVPlayerItem to a new player
+        if(!avPlayer) {
+            avPlayer = [[CDVAudioPlayer alloc] init];
+            [avPlayer clearQueue];
         }
+        
+        avPlayer.dataSource = [CDVAudioPlayer dataSourceFromURL:resourceUrl];
 
         self.currMediaId = mediaId;
 
