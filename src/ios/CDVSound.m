@@ -297,6 +297,7 @@
         CDVAudioFile* audioFile = [[self soundCache] objectForKey:mediaId];
         if (audioFile != nil) {
             audioFile.rate = rate;
+            [avPlayer setplaybackbackspeed:[rate floatValue]];
             // TODO: Fix for rate
 //            if (audioFile.player) {
 //                audioFile.player.enableRate = YES;
