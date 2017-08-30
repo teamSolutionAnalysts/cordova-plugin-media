@@ -178,6 +178,12 @@ public class AudioHandler extends CordovaPlugin {
             float f = this.getCurrentAmplitudeAudio(args.getString(0));
             callbackContext.sendPluginResult(new PluginResult(status, f));
             return true;
+        }else if (action.equals("setRate")) {
+           try {
+               this.setRate(args.getString(0), Float.parseFloat(args.getString(1)));
+           } catch (NumberFormatException nfe) {
+               //no-op
+           }
         }
         else { // Unrecognized action.
             return false;
@@ -482,6 +488,23 @@ public class AudioHandler extends CordovaPlugin {
         AudioPlayer audio = this.players.get(id);
         if (audio != null) {
             audio.setVolume(volume);
+        } else {
+          LOG.e(TAG3,"Unknown Audio Player " + id);
+        }
+    }
+
+    /**
+     * Set the speed rate for an audio
+     *
+     * @param id				The id of the audio player
+     * @param rate              Rate to adjust to 0.5f - 2.0f
+     */
+    public void setRate(String id, float volume) {
+        String TAG3 = "AudioHandler.setRate(): Error : ";
+
+        AudioPlayer audio = this.players.get(id);
+        if (audio != null) {
+            audio.setRate(volume);
         } else {
           LOG.e(TAG3,"Unknown Audio Player " + id);
         }

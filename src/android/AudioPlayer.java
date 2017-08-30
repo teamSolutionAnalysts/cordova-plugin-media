@@ -25,6 +25,8 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaRecorder;
 import android.os.Environment;
+import android.media.PlaybackParams;
+import android.support.annotation.RequiresApi;
 
 import org.apache.cordova.LOG;
 
@@ -719,4 +721,18 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
         }
         return 0;
     }
+
+      /**
+     * Set Rate
+     */
+    @RequiresApi(api = android.os.Build.VERSION_CODES.N)
+     public void setRate(float value) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            PlaybackParams params = new PlaybackParams();
+            params.setSpeed(value);
+            this.player.setPlaybackParams(params);
+                   LOG.e("Custom Message","sdhgd");
+        }
+//        this.player.setRate(1, value);
+    }   
 }
