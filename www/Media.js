@@ -153,7 +153,7 @@ Media.prototype.setRate = function (rate) {
         exec(null, null, "Media", "setRate", [this.id, rate]);
     }
     else {
-        console.warn('media.setRate method is currently not supported for', cordova.platformId, 'platform.');
+        exec(null, null, "Media", "setRate", [this.id, rate]); 
     }
 };
 /**

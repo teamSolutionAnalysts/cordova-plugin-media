@@ -727,7 +727,7 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
      */
     @RequiresApi(api = android.os.Build.VERSION_CODES.N)
      public void setRate(float value) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
             PlaybackParams params = new PlaybackParams();
             params.setSpeed(value);
             this.player.setPlaybackParams(params);
