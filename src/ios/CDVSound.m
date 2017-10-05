@@ -943,6 +943,15 @@
     [skipForwardIntervalCommand setEnabled:YES];
     [skipForwardIntervalCommand removeTarget:self action:@selector(skipForwardEvent:)];
     [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+    
+    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    [commandCenter.changePlaybackPositionCommand setEnabled:true];
+    [commandCenter.changePlaybackPositionCommand addTarget:self action:@selector(changedThumbSliderOnLockScreen:)];
+}
+
+- (MPRemoteCommandHandlerStatus)changedThumbSliderOnLockScreen:(MPChangePlaybackPositionCommandEvent *)event{
+    [avPlayer seekToTime:event.positionTime];
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
 -(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
