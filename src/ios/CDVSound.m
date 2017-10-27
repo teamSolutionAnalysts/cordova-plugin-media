@@ -239,15 +239,25 @@
          [self createAbortError:errorMessage]];
     } else {
         NSURL* resourceUrl = audioFile.resourceURL;
+        STKAudioPlayerOptions optns =  (STKAudioPlayerOptions) {
+            .flushQueueOnSeek = YES,
+            .enableVolumeMixer = NO,
+            .readBufferSize = 0,
+            .bufferSizeInSeconds = 0,
+            .secondsRequiredToStartPlaying = 0,
+            .gracePeriodAfterSeekInSeconds = 0,
+            .secondsRequiredToStartPlayingAfterBufferUnderun = 0,
+            .equalizerBandFrequencies =
+            50, 100, 200, 400, 800, 600, 2600, 16000, 0, 0, 0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0
+        };
         
         // Pass the AVPlayerItem to a new player
         if(!avPlayer) {
-            avPlayer = [[CDVAudioPlayer alloc] init];
+            avPlayer = [[CDVAudioPlayer alloc] initWithOptions:optns];
             [avPlayer clearQueue];
         }
         
         avPlayer.dataSource = [CDVAudioPlayer dataSourceFromURL:resourceUrl];
-        
         self.currMediaId = mediaId;
         
         CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -928,6 +938,7 @@
     MPRemoteCommandCenter *rcc = [MPRemoteCommandCenter sharedCommandCenter];
     MPSkipIntervalCommand *skipBackwardIntervalCommand = [rcc skipBackwardCommand];
     [skipBackwardIntervalCommand setEnabled:YES];
+    skipBackwardIntervalCommand.preferredIntervals = @[@(seekBack)];  // Set your own interval
     [skipBackwardIntervalCommand removeTarget:self action:@selector(skipBackwardEvent:)];
     [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
     
@@ -941,6 +952,7 @@
     
     MPSkipIntervalCommand *skipForwardIntervalCommand = [rcc skipForwardCommand];
     [skipForwardIntervalCommand setEnabled:YES];
+    skipForwardIntervalCommand.preferredIntervals = @[@(seekForward)];  // Set your own interval
     [skipForwardIntervalCommand removeTarget:self action:@selector(skipForwardEvent:)];
     [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
     
@@ -956,18 +968,32 @@
 
 -(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
-    [avPlayer seekToTime:avPlayer.progress - 15];
+    [avPlayer seekToTime:avPlayer.progress - seekBack];
     NSLog(@"Skip backward by %f", skipEvent.interval);
 }
 
 -(void)skipForwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
-    [avPlayer seekToTime:avPlayer.progress + 15];
+    [avPlayer seekToTime:avPlayer.progress + seekForward];
     NSLog(@"Skip forward by %f", skipEvent.interval);
 }
 
 -(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)skipEvent{
     NSLog(@"Play Pause %@", skipEvent);
+}
+
+
+-(void)enableVoiceEQ:(CDVInvokedUrlCommand*)command{
+    BOOL isEnable = [[command argumentAtIndex:1]boolValue];
+    avPlayer.equalizerEnabled = isEnable;
+    if (isEnable) {
+        [avPlayer setGain:24 forEqualizerBand:4];
+    }
+}
+
+-(void)setSeekValue:(CDVInvokedUrlCommand*)command{
+    seekForward = [[command argumentAtIndex:0] intValue];
+    seekBack = [[command argumentAtIndex:1] intValue];
 }
 @end
 

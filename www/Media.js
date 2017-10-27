@@ -153,7 +153,7 @@ Media.prototype.setRate = function (rate) {
         exec(null, null, "Media", "setRate", [this.id, rate]);
     }
     else {
-        exec(null, null, "Media", "setRate", [this.id, rate]); 
+        exec(null, null, "Media", "setRate", [this.id, rate]);
     }
 };
 /**
@@ -163,6 +163,24 @@ Media.prototype.getCurrentAmplitude = function (success, fail) {
     exec(function (p) {
         success(p);
     }, fail, "Media", "getCurrentAmplitudeAudio", [this.id]);
+};
+
+Media.prototype.enableVoiceEQ = function (isEnableVoiceEQ) {
+    if (cordova.platformId === 'ios') {
+        exec(null, null, "Media", "enableVoiceEQ", [this.id, isEnableVoiceEQ]);
+    }
+    else {
+        console.log('Enable VoiceEQ not available in Android currently')
+    }
+};
+
+Media.prototype.setSeekValue = function (seekForward, seekBack) {
+    if (cordova.platformId === 'ios') {
+        exec(null, null, "Media", "setSeekValue", [seekForward, seekBack]);
+    }
+    else {
+        console.log('Enable VoiceEQ not available in Android currently')
+    }
 };
 /**
  * Audio has status update.
@@ -208,6 +226,8 @@ Media.onStatus = function (id, msgType, value) {
         console.error("Received Media.onStatus callback for unknown media :: " + id);
     }
 };
+
+
 module.exports = Media;
 function onMessageFromNative(msg) {
     if (msg.action == 'status') {
