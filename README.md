@@ -130,6 +130,11 @@ The following constants are reported as the only parameter to the
 
 - `media.stop`: Stop playing an audio file.
 
+- `media.setRate`: Set the speed rate for audio playback.
+
+- `media.enableVoiceEQ`: Enable VoiceEQ for audio playback.
+
+- `media.setSeekValue`: Set the seek value for forward/Backward.
 ### Additional ReadOnly Parameters
 
 - __position__: The position within the audio playback, in seconds.

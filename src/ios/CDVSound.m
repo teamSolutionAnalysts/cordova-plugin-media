@@ -374,6 +374,8 @@
                     } else {
                         [avPlayer playDataSource:avPlayer.dataSource];
                     }
+                    seekBack = 15;
+                    seekForward = 15;
                     [self setMusicControlControl];
                 }
             }
@@ -994,7 +996,8 @@
 -(void)setSeekValue:(CDVInvokedUrlCommand*)command{
     seekForward = [[command argumentAtIndex:0] intValue];
     seekBack = [[command argumentAtIndex:1] intValue];
-}
+  [self setMusicControlControl];
+  }
 @end
 
 @implementation CDVAudioFile

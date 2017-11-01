@@ -179,7 +179,7 @@ Media.prototype.setSeekValue = function (seekForward, seekBack) {
         exec(null, null, "Media", "setSeekValue", [seekForward, seekBack]);
     }
     else {
-        console.log('Enable VoiceEQ not available in Android currently')
+        console.log('setSeekValue not available in Android currently')
     }
 };
 /**
