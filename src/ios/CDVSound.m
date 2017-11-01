@@ -30,7 +30,7 @@
 
 @implementation CDVSound
 
-@synthesize soundCache, avSession, currMediaId, statusCallbackId;
+@synthesize soundCache, avSession, currMediaId, statusCallbackId,seekForward,seekBack;
 
 // Maps a url for a resource path for recording
 - (NSURL*)urlForRecording:(NSString*)resourcePath
@@ -248,7 +248,7 @@
             .gracePeriodAfterSeekInSeconds = 0,
             .secondsRequiredToStartPlayingAfterBufferUnderun = 0,
             .equalizerBandFrequencies =
-            50, 100, 200, 400, 800, 600, 2600, 16000, 0, 0, 0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0
+            50, 100, 200, 400, 800, 1000, 2500, 6000, 14000, 0, 0, 0, 0, 0 , 0, 0, 0, 0, 0, 0, 0, 0 , 0, 0
         };
         
         // Pass the AVPlayerItem to a new player
@@ -374,8 +374,6 @@
                     } else {
                         [avPlayer playDataSource:avPlayer.dataSource];
                     }
-                    seekBack = 15;
-                    seekForward = 15;
                     [self setMusicControlControl];
                 }
             }
@@ -989,15 +987,17 @@
     BOOL isEnable = [[command argumentAtIndex:1]boolValue];
     avPlayer.equalizerEnabled = isEnable;
     if (isEnable) {
-        [avPlayer setGain:24 forEqualizerBand:4];
+        [avPlayer setGain:24 forEqualizerBand:6];
+        [avPlayer setGain:24 forEqualizerBand:7];
+        [avPlayer setGain:24 forEqualizerBand:8];
     }
 }
 
 -(void)setSeekValue:(CDVInvokedUrlCommand*)command{
     seekForward = [[command argumentAtIndex:0] intValue];
     seekBack = [[command argumentAtIndex:1] intValue];
-  [self setMusicControlControl];
-  }
+    [self setMusicControlControl];
+}
 @end
 
 @implementation CDVAudioFile

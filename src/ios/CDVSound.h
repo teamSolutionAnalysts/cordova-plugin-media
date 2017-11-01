@@ -94,7 +94,7 @@
      CDVAudioPlayer* avPlayer;
      NSString* statusCallbackId;
      int seekForward;
-     int seekBack;
+     int seekBack; 
  }
  @property (nonatomic, strong) NSMutableDictionary* soundCache;
  @property (nonatomic, strong) AVAudioSession* avSession;
@@ -129,4 +129,3 @@
  - (void)setRate:(CDVInvokedUrlCommand*)command;
  
  @end
- 
