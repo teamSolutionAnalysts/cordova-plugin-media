@@ -731,8 +731,27 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
             PlaybackParams params = new PlaybackParams();
             params.setSpeed(value);
             this.player.setPlaybackParams(params);
-                   LOG.e("Custom Message","sdhgd");
+            if (this.state == STATE.MEDIA_PAUSED && this.player != null) {
+                this.player.pause();
+            }
         }
 //        this.player.setRate(1, value);
     }   
+
+     /**
+     * Enable voice EQ and increse voice
+     */
+    public void enableVoiceEQ(boolean value) {
+        if (this.player != null) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                try {
+                    LoudnessEnhancer enhancer = new LoudnessEnhancer(this.player.getAudioSessionId());
+                    enhancer.setEnabled(true);
+                    enhancer.setTargetGain(value ? 4000 : 100);
+                } catch (Throwable x) {
+                    Log.w("Error", "Failed to create enhancer", x);
+                }
+            }
+        }
+    }
 }

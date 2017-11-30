@@ -184,6 +184,12 @@ public class AudioHandler extends CordovaPlugin {
            } catch (NumberFormatException nfe) {
                //no-op
            }
+        }else if (action.equals("enableVoiceEQ")) {
+            try {
+                this.enableVoiceEQ(args.getString(0), Boolean.parseBoolean(args.getString(1)));
+            } catch (NumberFormatException nfe) {
+                //no-op
+            }
         }
         else { // Unrecognized action.
             return false;
@@ -509,6 +515,24 @@ public class AudioHandler extends CordovaPlugin {
           LOG.e(TAG3,"Unknown Audio Player " + id);
         }
     }
+
+      /**
+     * Enable Voice EQ Boots
+     *
+     * @param id				The id of the audio player
+     * @param value             True/false
+     */
+    public void enableVoiceEQ(String id, boolean value) {
+        String TAG3 = "AudioHandler.enableVoiceEQ(): Error : ";
+
+        AudioPlayer audio = this.players.get(id);
+        if (audio != null) {
+            audio.enableVoiceEQ(value);
+        } else {
+            LOG.e(TAG3,"Unknown Audio Player " + id);
+        }
+    }
+    private
 
     private void onFirstPlayerCreated() {
         origVolumeStream = cordova.getActivity().getVolumeControlStream();

@@ -30,7 +30,7 @@
 
 @implementation CDVSound
 
-@synthesize soundCache, avSession, currMediaId, statusCallbackId,seekForward,seekBack;
+@synthesize soundCache, avSession, currMediaId, statusCallbackId;
 
 // Maps a url for a resource path for recording
 - (NSURL*)urlForRecording:(NSString*)resourcePath
