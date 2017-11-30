@@ -170,7 +170,7 @@ Media.prototype.enableVoiceEQ = function (isEnableVoiceEQ) {
         exec(null, null, "Media", "enableVoiceEQ", [this.id, isEnableVoiceEQ]);
     }
     else {
-        console.log('Enable VoiceEQ not available in Android currently')
+        exec(null, null, "Media", "enableVoiceEQ", [this.id, isEnableVoiceEQ]);
     }
 };
 
