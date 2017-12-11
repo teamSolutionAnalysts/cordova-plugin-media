@@ -987,9 +987,8 @@
     BOOL isEnable = [[command argumentAtIndex:1]boolValue];
     avPlayer.equalizerEnabled = isEnable;
     if (isEnable) {
-        [avPlayer setGain:24 forEqualizerBand:6];
-        [avPlayer setGain:24 forEqualizerBand:7];
-        [avPlayer setGain:24 forEqualizerBand:8];
+     [avPlayer setGain:24 forEqualizerBand:5];
+     [avPlayer setGain:24 forEqualizerBand:6];   
     }
 }
 
