@@ -374,6 +374,8 @@
                     } else {
                         [avPlayer playDataSource:avPlayer.dataSource];
                     }
+                    seekBack = 15;
+                    seekForward = 15;
                     [self setMusicControlControl];
                 }
             }
@@ -944,11 +946,11 @@
     
     MPRemoteCommand *pauseCommand = [rcc pauseCommand];
     [pauseCommand setEnabled:YES];
-    [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    [pauseCommand addTarget:self action:@selector(pauseEvent:)];
     //
     MPRemoteCommand *playCommand = [rcc playCommand];
     [playCommand setEnabled:YES];
-    [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    [playCommand addTarget:self action:@selector(playEvent:)];
     
     MPSkipIntervalCommand *skipForwardIntervalCommand = [rcc skipForwardCommand];
     [skipForwardIntervalCommand setEnabled:YES];
@@ -978,17 +980,29 @@
     NSLog(@"Skip forward by %f", skipEvent.interval);
 }
 
--(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)skipEvent{
+-(void)playEvent: (MPSkipIntervalCommandEvent *)skipEvent{
+    [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_RUNNING)];
     NSLog(@"Play Pause %@", skipEvent);
 }
 
+-(void)pauseEvent: (MPSkipIntervalCommandEvent *)skipEvent{
+    [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_PAUSED)];
+    NSLog(@"Play Pause %@", skipEvent);
+}
 
 -(void)enableVoiceEQ:(CDVInvokedUrlCommand*)command{
     BOOL isEnable = [[command argumentAtIndex:1]boolValue];
     avPlayer.equalizerEnabled = isEnable;
     if (isEnable) {
-     [avPlayer setGain:24 forEqualizerBand:5];
-     [avPlayer setGain:24 forEqualizerBand:6];   
+        [avPlayer setGain:-19 forEqualizerBand:0];
+        [avPlayer setGain:-10 forEqualizerBand:1];
+        [avPlayer setGain:5 forEqualizerBand:2];
+        [avPlayer setGain:18 forEqualizerBand:3];
+        [avPlayer setGain:8 forEqualizerBand:4];
+        [avPlayer setGain:5 forEqualizerBand:5];
+        [avPlayer setGain:9 forEqualizerBand:6];
+        [avPlayer setGain:-5 forEqualizerBand:7];
+        [avPlayer setGain:-13.0 forEqualizerBand:8];
     }
 }
 
