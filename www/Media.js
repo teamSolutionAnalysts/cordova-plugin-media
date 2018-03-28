@@ -182,6 +182,16 @@ Media.prototype.setSeekValue = function (seekForward, seekBack) {
         console.log('setSeekValue not available in Android currently')
     }
 };
+
+Media.prototype.isAudioAd = function (isAudioAd) {
+    if (cordova.platformId === 'ios') {
+        console.log('isAudioAd available in ios');
+        exec(null, null, "Media", "isAudioAd", [this.id, isAudioAd]);
+    }
+    else {
+        exec(null, null, "Media", "isAudioAd", [this.id, isAudioAd]);
+    }
+};
 /**
  * Audio has status update.
  * PRIVATE
