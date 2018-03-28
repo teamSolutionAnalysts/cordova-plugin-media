@@ -96,6 +96,7 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
     private MediaPlayer player = null;      // Audio player object
     private boolean prepareOnly = true;     // playback after file prepare flag
     private int seekOnPrepared = 0;     // seek to this location once media is prepared
+    private boolean isAudioAd = false;     // is Audio ad playing
 
     /**
      * Constructor.
@@ -348,6 +349,8 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
      * Stop playing the audio file.
      */
     public void stopPlaying() {
+        if(!this.isAudioAd){
+
         if ((this.state == STATE.MEDIA_RUNNING) || (this.state == STATE.MEDIA_PAUSED)) {
             this.player.pause();
             this.player.seekTo(0);
@@ -358,12 +361,15 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
             LOG.d(LOG_TAG, "AudioPlayer Error: stopPlaying() called during invalid state: " + this.state.ordinal());
             sendErrorStatus(MEDIA_ERR_NONE_ACTIVE);
         }
+        }
+
     }
 
     /**
      * Resume playing.
      */
     public void resumePlaying() {
+
         this.startPlaying(this.audioFile);
     }
 
@@ -735,12 +741,14 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
             PlaybackParams params = new PlaybackParams();
             params.setSpeed(value);
             this.player.setPlaybackParams(params);
+            LOG.e("Rate", String.valueOf(value));
             if (this.state == STATE.MEDIA_PAUSED && this.player.isPlaying()) {
                 this.player.pause();
                 this.setState(STATE.MEDIA_PAUSED);
             }
         }
     }
+//        this.player.setRate(1, value)
 
     /**
      * Enable voice EQ and increse voice
@@ -757,5 +765,11 @@ public class AudioPlayer implements OnCompletionListener, OnPreparedListener, On
                 }
             }
         }
+    }
+    /**
+     * set isAudioAd
+     */
+    public void isAudioAd(boolean value) {
+          this.isAudioAd = value;
     }
 }

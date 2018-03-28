@@ -376,6 +376,7 @@
                     }
                     seekBack = 15;
                     seekForward = 15;
+                    isAudioAd = false;
                     [self setMusicControlControl];
                 }
             }
@@ -964,30 +965,40 @@
 }
 
 - (MPRemoteCommandHandlerStatus)changedThumbSliderOnLockScreen:(MPChangePlaybackPositionCommandEvent *)event{
-    [avPlayer seekToTime:event.positionTime];
+    if(!isAudioAd){
+        [avPlayer seekToTime:event.positionTime];
+    }
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
 -(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
-    [avPlayer seekToTime:avPlayer.progress - seekBack];
-    NSLog(@"Skip backward by %f", skipEvent.interval);
+    if(!isAudioAd){
+        [avPlayer seekToTime:avPlayer.progress - seekBack];
+        NSLog(@"Skip backward by %f", skipEvent.interval);
+    }
 }
 
 -(void)skipForwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
-    [avPlayer seekToTime:avPlayer.progress + seekForward];
-    NSLog(@"Skip forward by %f", skipEvent.interval);
+    if(!isAudioAd){
+        [avPlayer seekToTime:avPlayer.progress + seekForward];
+        NSLog(@"Skip forward by %f", skipEvent.interval);
+    }
 }
 
 -(void)playEvent: (MPSkipIntervalCommandEvent *)skipEvent{
-    [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_RUNNING)];
-    NSLog(@"Play Pause %@", skipEvent);
+    if(!isAudioAd){
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_RUNNING)];
+        NSLog(@"Play Pause %@", skipEvent);
+    }
 }
 
 -(void)pauseEvent: (MPSkipIntervalCommandEvent *)skipEvent{
-    [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_PAUSED)];
-    NSLog(@"Play Pause %@", skipEvent);
+    if(!isAudioAd){
+        [self onStatus:MEDIA_STATE mediaId: self.currMediaId param:@(MEDIA_PAUSED)];
+        NSLog(@"Play Pause %@", skipEvent);
+    }
 }
 
 -(void)enableVoiceEQ:(CDVInvokedUrlCommand*)command{
@@ -1011,6 +1022,12 @@
     seekBack = [[command argumentAtIndex:1] intValue];
     [self setMusicControlControl];
 }
+
+-(void)isAudioAd:(CDVInvokedUrlCommand*)command{
+    BOOL tmpIsAudioAd = [[command argumentAtIndex:1]boolValue];
+    isAudioAd = tmpIsAudioAd;
+}
+
 @end
 
 @implementation CDVAudioFile

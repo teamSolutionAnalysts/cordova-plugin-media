@@ -95,6 +95,7 @@
      NSString* statusCallbackId;
      int seekForward;
      int seekBack; 
+    BOOL isAudioAd;
  }
  @property (nonatomic, strong) NSMutableDictionary* soundCache;
  @property (nonatomic, strong) AVAudioSession* avSession;
@@ -127,5 +128,5 @@
  
  - (void)setVolume:(CDVInvokedUrlCommand*)command;
  - (void)setRate:(CDVInvokedUrlCommand*)command;
- 
+ -(void)isAudioAd:(CDVInvokedUrlCommand*)command;
  @end
